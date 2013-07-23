@@ -1,0 +1,2 @@
+include ":player",":long-tests",":rules" ,":intellij"
+

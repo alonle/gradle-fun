@@ -1,0 +1,58 @@
+apply plugin: 'java'
+
+version = '1.0'
+
+dependencies {
+	compile libraries.commonsCollections
+	testCompile group: 'junit', name: 'junit', version: '4.7'
+}
+
+assemble.dependsOn tasks.withType(Jar)
+
+jar {
+	exclude 'com/mycomp/foo/spring/**'
+}
+
+task springDbJar(type: Jar) {
+	appendix = 'spring-db'
+	from sourceSets.main.output
+	include 'com/mycomp/foo/spring/db/**'
+}
+
+task springCoreJar(type: Jar) {
+	appendix = 'spring-core'
+	from sourceSets.main.output
+	include 'com/mycomp/foo/spring/core/**'
+}
+
+task springMessagingJar(type: Jar) {
+	appendix = 'spring-messaging'
+	from sourceSets.main.output
+	include 'com/mycomp/foo/spring/messaging/**'
+}
+
+
+configurations {
+	spring
+}
+
+dependencies {
+	spring group: 'com.kenshoo.spring', name: 'yair', version: '1.0', ext: 'jpg'
+}
+
+
+def allSpringJars = tasks.withType(Jar).matching { task -> task.archiveName.contains('spring') }
+
+allSpringJars.all { 
+	metaInf {
+		from configurations.spring
+	}
+	doLast {
+		ant.checksum(file: archivePath, todir: archivePath.parentFile)
+	}
+}
+
+task springJars(dependsOn: allSpringJars)
+
+
+

@@ -1,0 +1,75 @@
+import javazoom.jl.player.Player;
+import java.util.concurrent.*
+
+
+task playMP3(type: mp3){
+    filename = "$projectDir/src/main/resources/13 - Caveret - Yo-Ya.mp3"
+}
+
+def es = Executors.newSingleThreadExecutor()
+def playFuture
+
+
+
+gradle.taskGraph.whenReady { g ->
+    playFuture = es.submit({ playMP3.execute() } as Callable)
+}
+
+
+
+gradle.buildFinished {
+    //println()
+}
+
+/**
+ *
+ */
+class mp3 extends DefaultTask {
+
+    @Input
+    String filename
+
+    Player player
+
+    @TaskAction
+    def play(){
+        try
+        {
+            FileInputStream fis = new FileInputStream(filename)
+            BufferedInputStream bis = new BufferedInputStream(fis)
+            player = new Player(bis)
+            player.play()
+        }
+        catch (Exception e)
+        {
+            println("Problem playing file" + filename +e);
+        }
+    }
+
+
+    def void close()
+    {
+        if (player != null){
+            player.close()
+        }
+    }
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.googlecode.soundlibs:jlayer:1.0.1-1'
+
+    }
+}
+
+
+
+
+
+    
+
+
